@@ -1,20 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
-    :file: flashScan.py
+    :file: port.py
     :author: -Farmer
     :url: https://blog.farmer233.top
-    :date: 2021/08/03 14:10:59
+    :date: 2021/08/03 20:38:05
 '''
 
-# -*- coding: utf-8 -*-
-'''
-    :file: scan.py
-    :author: -Farmer
-    :url: https://blog.farmer233.top
-    :date: 2021/08/03 01:41:34
-'''
-
-from settings import SCAN_PROTOCOL, SCAN_FLAG, SCAN_RATE, SCAN_TIMEOUT
+from .settings import SCAN_PROTOCOL, SCAN_FLAG, SCAN_RATE, SCAN_TIMEOUT
 import aiohttp
 import time
 import asyncio
@@ -51,7 +43,7 @@ class PortScan(object):
         ip, port = ip_port
         url = f'{self.protocol}://{ip}:{port}'
         async with semaphore:
-            print(f'scanning {ip}:{port}...')
+            print(f'scanning {ip}:{port}...; flag: {self.flag}')
             async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
                 try:
                     async with session.get(url, timeout=self.timeout) as resp:
@@ -96,7 +88,7 @@ if __name__ == '__main__':
     now = time.time
 
     start = now()
-    scan = PortScan(host=host, all_ports=True, rate=20000, flag="nginx/1.18.0 (Ubuntu)")
+    scan = PortScan(host=host, all_ports=False, rate=1024, flag="nginx/1.18.0 (Ubuntu)")
     scan.run()
     end = now()
     print(f"start-end: {start}<->{end}, spend: {end-start}s\n")

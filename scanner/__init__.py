@@ -5,5 +5,5 @@
     :url: https://blog.farmer233.top
     :date: 2021/08/03 01:40:41
 '''
-
+from .scan import Scan
 
