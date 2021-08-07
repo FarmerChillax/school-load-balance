@@ -13,7 +13,7 @@ func main() {
 	for i := 1; i <= 255; i++ {
 		hosts = append(hosts, fmt.Sprintf(hostStr, i))
 	}
-	fmt.Println(hosts)
+	// fmt.Println(hosts)
 	res := scan.FastScanHandler(hosts)
 	elsp := time.Since(start)
 	fmt.Println(res)

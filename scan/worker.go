@@ -16,7 +16,7 @@ func worker(address, results chan Address) {
 		}
 		resp.Body.Close()
 
-		if resp.Header.Get("Server") == "nginx/1.18.0 (Ubuntu)" {
+		if resp.Header.Get("Server") == "ZFSOFT.Inc" {
 			addr.status = true
 		}
 		results <- addr
