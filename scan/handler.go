@@ -1,5 +1,7 @@
 package scan
 
+import "time"
+
 // 深度搜索教务系统
 // 扫描网段中主机的每个端口（65535个）
 func DeepScanHandler(hostList []string) OpenPorts {
@@ -40,11 +42,14 @@ func FastScanHandler(hostList []string) OpenPorts {
 			for _, port := range commonPort {
 				address <- Address{Host: Host(host), Port: port, status: false}
 			}
+			time.Sleep(time.Second)
 		}
 	}()
 
 	// collect worker results
 	openPorts := resultsHandler(len(hostList), len(commonPort), results)
+	close(address)
+	close(results)
 	return openPorts
 }
 
