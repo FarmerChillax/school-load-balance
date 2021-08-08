@@ -22,4 +22,5 @@ type Address struct {
 	Port    Port
 	Status  bool
 	Timeout Timeout
+	ssl     bool
 }

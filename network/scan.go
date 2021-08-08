@@ -1,6 +1,7 @@
 package network
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,24 +20,28 @@ func StartSegment(template string, start, end Port) {
 }
 
 func (seg Segment) SegmentHandlerFunc() {
+	var segmentRes []SegmentResult
 	segRes := make(chan SegmentResult, 100)
 	for j := 1; j <= 255; j++ {
 		addr := Address{
 			Host:    Host(fmt.Sprintf(seg.Template, j)),
 			Status:  false,
 			Timeout: Timeout(time.Second), // timeout这里写死了
+			ssl:     false,
 		}
 		go addr.Handler(seg.StartPort, seg.EndPort, segRes)
 	}
 	for i := 1; i <= 255; i++ {
 		res := <-segRes
 		if len(res.Ports) > 0 {
-			for _, item := range res.Ports {
-				fmt.Printf("%s:%d opend!\n", res.Host, item)
-			}
+			segmentRes = append(segmentRes, res)
 		}
 	}
 	close(segRes)
+
+	for _, item := range segmentRes {
+		fmt.Printf("%s opens: %v\n", item.Host, item.Ports)
+	}
 }
 
 // port Handler；端口扫描器（单一ip）
@@ -89,16 +94,27 @@ func worker(address, results chan Address) {
 	for addr := range address {
 		url := fmt.Sprintf("http://%s:%d", addr.Host, addr.Port)
 		addr.Status = false
-		client := http.Client{Timeout: time.Duration(addr.Timeout)}
+		log.Printf("Start scan %s:%d; ssl is %v;\n", addr.Host, addr.Port, addr.ssl)
+		client := makeHTTPClient(addr.Timeout, addr.ssl)
 		resp, err := client.Get(url)
 		if err != nil {
 			results <- addr
 			continue
 		}
-		resp.Body.Close()
 		if resp.Header.Get("Server") == "ZFSOFT.Inc" {
 			addr.Status = true
 		}
 		results <- addr
 	}
+}
+
+func makeHTTPClient(timeout Timeout, ssl bool) (client http.Client) {
+	tr := http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: ssl},
+	}
+	client = http.Client{
+		Timeout:   time.Duration(timeout),
+		Transport: &tr,
+	}
+	return client
 }

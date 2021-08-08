@@ -8,7 +8,7 @@ import (
 func main() {
 	HelloAPI := HelloAPI{}
 	server := http.Server{
-		Addr: "localhost:8080",
+		Addr: "0.0.0.0:6660",
 	}
 	http.Handle("/api", &HelloAPI)
 
