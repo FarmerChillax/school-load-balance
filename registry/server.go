@@ -9,18 +9,18 @@ import (
 	"sync"
 )
 
-const ServerPort = ":6661"
+const ServerPort = ":6660"
 const ServicesURL = "http://localhost" + ServerPort + "/services"
+
+type registry struct {
+	registrations []Registration
+	mutex         *sync.Mutex
+}
 
 // 全局变量
 var reg = registry{
 	registrations: make([]Registration, 0),
 	mutex:         new(sync.Mutex),
-}
-
-type registry struct {
-	registrations []Registration
-	mutex         *sync.Mutex
 }
 
 // 添加注册
@@ -36,8 +36,10 @@ func (r *registry) remove(url string) error {
 	for index := range reg.registrations {
 		if reg.registrations[index].ServiceURL == url {
 			r.mutex.Lock()
+			tmp := reg.registrations[index]
 			reg.registrations = append(reg.registrations[:index], reg.registrations[index+1:]...)
 			r.mutex.Unlock()
+			log.Printf("Logout serveice: %v success.", tmp.ServiceName)
 			return nil
 		}
 	}
@@ -76,6 +78,7 @@ func (s RegistryService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		url := string(payload)
 		log.Printf("Removing service at URL: %s", url)
+		err = reg.remove(url)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
