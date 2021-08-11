@@ -1,0 +1,11 @@
+### Ping redis
+GET http://localhost:7000/ping HTTP/1.1
+
+### write open port to db
+POST http://localhost:7000/write HTTP/1.1
+Content-Type: "application/json"
+
+{
+    "Host": "192.168.2.123",
+    "Ports": [80, 443]
+}
