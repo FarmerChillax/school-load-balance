@@ -29,8 +29,11 @@ func RegisterService(r Registration) error {
 	return nil
 }
 
+// 传入停止服务的url，向注册中心发送注销请求
+// url格式为-> ip:port
 func ShutdownService(url string) error {
 	req, err := http.NewRequest(http.MethodDelete, ServicesURL,
+		// request请求体内容->url
 		bytes.NewBuffer([]byte(url)))
 	if err != nil {
 		return err

@@ -1,5 +1,6 @@
 package registry
 
+// 服务注册结构体
 type Registration struct {
 	ServiceName ServiceName
 	ServiceURL  string
@@ -8,7 +9,8 @@ type Registration struct {
 type ServiceName string
 
 const (
-	LogService = ServiceName("LogService")
+	LogService   = ServiceName("LogService")
+	RedisService = ServiceName("RedisService")
 )
 
 // type patchEntry struct {

@@ -33,11 +33,11 @@ func startService(ctx context.Context, ServiceName registry.ServiceName,
 		log.Println(srv.ListenAndServe())
 		// 关闭的时候要取消注册
 		// ... todo
-		err := registry.ShutdownService(fmt.Sprintf("http://%s:%s", host, port))
+		err := registry.ShutdownService(srv.Addr)
 		if err != nil {
 			log.Println(err)
 		}
-		// log.Println("注销服务成功.")
+		log.Println("注销服务成功.")
 		cancel()
 	}()
 
