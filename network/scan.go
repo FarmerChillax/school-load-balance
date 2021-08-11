@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func StartSegment(template string, start, end Port) {
+func StartSegment(template string, start, end int) {
 	Seg := Segment{
 		Template:    template,
 		SegmentType: 'D',
@@ -24,7 +24,7 @@ func (seg Segment) SegmentHandlerFunc() {
 	segRes := make(chan SegmentResult, 100)
 	for j := 1; j <= 255; j++ {
 		addr := Address{
-			Host:    Host(fmt.Sprintf(seg.Template, j)),
+			Host:    fmt.Sprintf(seg.Template, j),
 			Status:  false,
 			Timeout: Timeout(time.Second), // timeout这里写死了
 			ssl:     false,
@@ -45,7 +45,7 @@ func (seg Segment) SegmentHandlerFunc() {
 }
 
 // port Handler；端口扫描器（单一ip）
-func (addr Address) Handler(start, end Port, segRes chan SegmentResult) {
+func (addr Address) Handler(start, end int, segRes chan SegmentResult) {
 	res := SegmentResult{Host: addr.Host}
 	address := make(chan Address, 1024)
 	results := make(chan Address, 10)
@@ -65,7 +65,7 @@ func (addr Address) Handler(start, end Port, segRes chan SegmentResult) {
 }
 
 // 处理扫描结果
-func resultsHandler(start, end Port, results chan Address) (ports []Port) {
+func resultsHandler(start, end int, results chan Address) (ports []int) {
 	for i := start; i <= end; i++ {
 		res := <-results
 		if res.Status {
@@ -77,7 +77,7 @@ func resultsHandler(start, end Port, results chan Address) (ports []Port) {
 }
 
 // 推送端口进channel给worker
-func (addr Address) pushPort(startPort, endPort Port, address chan Address) {
+func (addr Address) pushPort(startPort, endPort int, address chan Address) {
 	if startPort <= 0 || endPort > 65535 || endPort < startPort {
 		log.Fatalln("Port range oversize.")
 		os.Exit(1)

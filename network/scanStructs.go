@@ -2,24 +2,22 @@ package network
 
 import "time"
 
-type Host string
-type Port int
 type Timeout time.Duration
 
 type Segment struct {
 	Template           string
 	SegmentType        rune
-	StartPort, EndPort Port
+	StartPort, EndPort int
 }
 
 type SegmentResult struct {
-	Host  Host
-	Ports []Port
+	Host  string
+	Ports []int
 }
 
 type Address struct {
-	Host    Host
-	Port    Port
+	Host    string
+	Port    int
 	Status  bool
 	Timeout Timeout
 	ssl     bool
