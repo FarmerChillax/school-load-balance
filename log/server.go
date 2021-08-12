@@ -22,7 +22,7 @@ func (fl fileLog) Write(data []byte) (int, error) {
 }
 
 func Run(destination string) {
-	log = stlog.New(fileLog(destination), "log - ", stlog.LstdFlags)
+	log = stlog.New(fileLog(destination), "[log] - ", stlog.LstdFlags)
 }
 
 func RegisterHandlers() {

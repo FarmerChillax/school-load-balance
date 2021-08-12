@@ -1,6 +1,7 @@
 package main
 
 import (
+	"balance/log"
 	"balance/registry"
 	"balance/service"
 	"balance/storage"
@@ -16,6 +17,10 @@ func main() {
 	r := registry.Registration{
 		ServiceName: registry.RedisService,
 		ServiceURL:  serviceAddress,
+		RequiredServices: []registry.ServiceName{
+			registry.LogService,
+		},
+		ServiceUpdateURL: serviceAddress + "/services",
 	}
 
 	ctx, err := service.Start(
@@ -27,6 +32,12 @@ func main() {
 	)
 	if err != nil {
 		stlog.Fatalln(err)
+	}
+
+	// 启动 log service
+	if logProvider, err := registry.GetProvide(registry.LogService); err == nil {
+		fmt.Printf("Logging service found at: %s\n", logProvider)
+		log.SetClientLogger(logProvider, r.ServiceName)
 	}
 
 	<-ctx.Done()
