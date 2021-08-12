@@ -30,7 +30,53 @@ func (r *registry) add(reg Registration) error {
 	r.registrations = append(r.registrations, reg)
 	r.mutex.Unlock()
 	err := r.sendRequiredServices(reg)
+	// 当服务启动时，通知依赖该服务的服务
+	r.notify(patch{
+		Added: []patchEntry{
+			patchEntry{
+				Name: reg.ServiceName,
+				URL:  reg.ServiceURL,
+			},
+		},
+	})
 	return err
+}
+
+// 当依赖服务运行时，通知依赖者
+func (r registry) notify(fullpatch patch) {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
+	// 循环已经注册的服务
+	for _, reg := range r.registrations {
+		// 并发的向每个已注册服务发送通知
+		go func(reg Registration) {
+			for _, reqService := range reg.RequiredServices {
+				p := patch{Added: []patchEntry{}, Removed: []patchEntry{}}
+				sendUpdate := false
+				for _, added := range fullpatch.Added {
+					if added.Name == reqService {
+						p.Added = append(p.Added, added)
+						sendUpdate = true
+					}
+				}
+				for _, removed := range fullpatch.Removed {
+					if removed.Name == reqService {
+						p.Removed = append(p.Removed, removed)
+						sendUpdate = true
+					}
+				}
+				if sendUpdate {
+					// 发送
+					err := r.sendPatch(p, reg.ServiceUpdateURL)
+					if err != nil {
+						log.Println(err)
+						return
+					}
+				}
+			}
+		}(reg)
+	}
+
 }
 
 // 注册中心向服务发送依赖相关内容
@@ -74,8 +120,17 @@ func (r registry) sendPatch(p patch, url string) error {
 
 // 移除注册（注销）
 func (r *registry) remove(url string) error {
+	fmt.Println("removing...")
 	for index := range reg.registrations {
 		if reg.registrations[index].ServiceURL == url {
+			r.notify(patch{
+				Removed: []patchEntry{
+					patchEntry{
+						Name: r.registrations[index].ServiceName,
+						URL:  r.registrations[index].ServiceURL,
+					},
+				},
+			})
 			r.mutex.Lock()
 			tmp := reg.registrations[index]
 			reg.registrations = append(reg.registrations[:index], reg.registrations[index+1:]...)

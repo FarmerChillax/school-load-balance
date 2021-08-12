@@ -3,7 +3,6 @@ package storage
 import (
 	"balance/network"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -14,7 +13,7 @@ func writeHandler(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		var segmentRes network.SegmentResult
 		err := decoder.Decode(&segmentRes)
-		fmt.Println(segmentRes.Host, segmentRes.Ports)
+		log.Println(segmentRes.Host, segmentRes.Ports)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)

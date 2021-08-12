@@ -28,25 +28,29 @@ func startService(ctx context.Context, ServiceName registry.ServiceName,
 	var srv http.Server
 	// srv.Addr = ":" + port
 	srv.Addr = fmt.Sprintf("%s:%s", host, port)
+	address := fmt.Sprintf("http://%s:%s", host, port)
 
 	go func() {
 		log.Println(srv.ListenAndServe())
 		// 关闭的时候要取消注册
 		// ... todo
-		err := registry.ShutdownService(srv.Addr)
+		err := registry.ShutdownService(address)
 		if err != nil {
 			log.Println(err)
 		}
-		log.Println("注销服务成功.")
 		cancel()
 	}()
 
 	go func() {
-		fmt.Printf("Service is running in http://%v\n", srv.Addr)
+		fmt.Printf("Service is running in %v\n", address)
 		fmt.Println("Registry service started. Press any key to stop.")
 		var s string
 		fmt.Scanln(&s)
 		srv.Shutdown(ctx)
+		err := registry.ShutdownService(address)
+		if err != nil {
+			log.Println(err)
+		}
 		cancel()
 	}()
 

@@ -20,6 +20,7 @@ type clientLogger struct {
 	url string
 }
 
+// 重写io writer方法，使log输出到系统的log服务中
 func (cl clientLogger) Write(data []byte) (int, error) {
 	b := bytes.NewBuffer([]byte(data))
 	res, err := http.Post(cl.url+"/log", "text/plain", b)
