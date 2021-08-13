@@ -105,7 +105,6 @@ func sendDiscover(addrs Addrs) error {
 	}
 	// 写数据库（redis）
 	redisURL, err := registry.GetProvide(registry.RedisService)
-	fmt.Println(redisURL, err)
 	if err != nil {
 		return err
 	}

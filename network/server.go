@@ -25,9 +25,8 @@ func DiscovererHandler(w http.ResponseWriter, r *http.Request) {
 
 func fastDiscover() {
 	hostTemplate := "192.168.2.%d"
-	for i := 1; i <= 2; i++ {
+	for i := 1; i <= 255; i++ {
 		host := fmt.Sprintf(hostTemplate, i)
 		go commonDiscover(host)
 	}
-	fmt.Println("Add Scan Task...")
 }

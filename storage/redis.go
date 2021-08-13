@@ -4,6 +4,7 @@ import (
 	"balance/network"
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -15,6 +16,7 @@ const (
 	password  = "farmer233"
 	db        = 5
 	REDIS_KEY = "ipList"
+	SCORE_MAX = 50
 )
 
 var rdb = redis.NewClient(&redis.Options{
@@ -34,7 +36,7 @@ func pingDB() string {
 	return res
 }
 
-func writeDB(addrs network.Addrs) (err error) {
+func add(addrs network.Addrs) (err error) {
 	for _, addr := range addrs {
 		address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
 		err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
@@ -45,16 +47,61 @@ func writeDB(addrs network.Addrs) (err error) {
 			return err
 		}
 	}
-	// err = rdb.Set(ctx, key, ports, 0).Err()
-	// for _, port := range ports {
-	// 	address := fmt.Sprintf("%s:%d", host, port)
-	// 	err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
-	// 		Score:  10,
-	// 		Member: address,
-	// 	}).Err()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+
 	return nil
 }
+
+// 降低目标地址分数
+func decrease(addr network.Addr) (err error) {
+	address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
+	err = rdb.ZIncrBy(ctx, REDIS_KEY, -1, address).Err()
+	if err != nil {
+		return err
+	}
+	score := rdb.ZScore(ctx, REDIS_KEY, address)
+	if score.Val() <= 0.00 {
+		log.Printf("%v current score %v, remove.\n", address, score.Val())
+		err := rdb.ZRem(ctx, REDIS_KEY, address).Err()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// set jwglxt to max score
+func max(addr network.Addr) (err error) {
+	address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
+	err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
+		Score:  SCORE_MAX,
+		Member: address,
+	}).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// /////// api service func ///////
+
+// get count of jwglxt
+func count() int64 {
+	count, err := rdb.ZCard(ctx, REDIS_KEY).Result()
+	if err != nil {
+		return -1
+	}
+	return count
+}
+
+// 检测地址是否存在
+func exists(addr network.Addr) bool {
+	address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
+	err := rdb.ZScore(ctx, REDIS_KEY, address).Err()
+	if err == nil {
+		return true
+	}
+	return false
+}
+
+// get batch of jwglxt
+// func batch()

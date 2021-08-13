@@ -9,3 +9,12 @@ Content-Type: "application/json"
     "Host": "192.168.2.123",
     "Ports": [80, 443]
 }
+
+
+### test address exits
+# http://192.168.2.237:80
+HEAD http://localhost:7000/redis
+    ?protocol=http&host=192.168.2.123&port=80 
+
+### get record count
+GET http://localhost:7000/utils 

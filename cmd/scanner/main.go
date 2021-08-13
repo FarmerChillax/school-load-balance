@@ -36,6 +36,6 @@ func main() {
 	}
 
 	<-ctx.Done()
-	fmt.Println("Shutting down redis service.")
+	fmt.Println("Shutting down scanner service.")
 
 }
