@@ -1,0 +1,9 @@
+### send get to start common scan
+GET http://localhost:6500/start HTTP/1.1
+
+
+### Send post to star scan
+POST http://localhost:6500/start HTTP/1.1
+# header name: header value
+
+# content

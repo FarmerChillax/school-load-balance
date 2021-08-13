@@ -15,6 +15,7 @@ type ServiceName string
 const (
 	LogService   = ServiceName("LogService")
 	RedisService = ServiceName("RedisService")
+	ScanService  = ServiceName("ScanService")
 )
 
 type patchEntry struct {

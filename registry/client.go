@@ -11,10 +11,6 @@ import (
 	"sync"
 )
 
-// func ShutdownService(url string) error {
-// 	// req, err := http.NewRequest(http.MethodDelete, )
-// }
-
 func RegisterService(r Registration) error {
 	serviceUpdateURL, err := url.Parse(r.ServiceUpdateURL)
 	if err != nil {
@@ -29,6 +25,7 @@ func RegisterService(r Registration) error {
 	if err != nil {
 		return err
 	}
+	// 向注册中心发送注册请求
 	res, err := http.Post(ServicesURL, "application/json", buf)
 	if err != nil {
 		return err
@@ -117,7 +114,7 @@ func (p *providers) Update(pat patch) {
 // 私有函数
 func (p providers) get(name ServiceName) (string, error) {
 	providers, ok := p.services[name]
-	if !ok {
+	if !ok || len(providers) == 0 {
 		return "", fmt.Errorf("no providers available for service %v", name)
 	}
 	idx := int(rand.Float32() * float32(len(providers)))

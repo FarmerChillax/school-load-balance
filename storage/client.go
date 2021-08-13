@@ -1,49 +1,31 @@
 package storage
 
 import (
-	"context"
+	"bytes"
 	"fmt"
-
-	"github.com/go-redis/redis/v8"
+	"net/http"
 )
 
-// setting
-const (
-	server    = "192.168.2.122"
-	port      = 6379
-	password  = "farmer233"
-	db        = 5
-	REDIS_KEY = "ipList"
-)
-
-var rdb = redis.NewClient(&redis.Options{
-	Addr:     fmt.Sprintf("%s:%d", server, port),
-	Password: password,
-	DB:       db,
-})
-
-var ctx = context.Background()
-
-func init() {
-	fmt.Println(rdb.Ping(ctx))
+func SetRedisClient(serviceURL string) (*RedisClient, error) {
+	cr := &RedisClient{
+		url: serviceURL,
+	}
+	return cr, nil
 }
 
-func pingDB() string {
-	res := fmt.Sprintf("%v", rdb.Ping(ctx))
-	return res
+// func
+type RedisClient struct {
+	url string
 }
 
-func writeDB(host string, ports []int) (err error) {
-	// err = rdb.Set(ctx, key, ports, 0).Err()
-	for _, port := range ports {
-		address := fmt.Sprintf("%s:%d", host, port)
-		err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
-			Score:  10,
-			Member: address,
-		}).Err()
-		if err != nil {
-			return err
-		}
+func (cr RedisClient) Writer(b *bytes.Buffer) error {
+	// b := bytes.NewBuffer([]byte(data))
+	res, err := http.Post(cr.url+"/write", "application/json", b)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to send redis. Service responded with %v", res.StatusCode)
 	}
 	return nil
 }

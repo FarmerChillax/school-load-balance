@@ -2,17 +2,40 @@ package main
 
 import (
 	"balance/network"
+	"balance/registry"
+	"balance/service"
+	"context"
 	"fmt"
-	"time"
+	stlog "log"
 )
 
 func main() {
-	template := "172.16.1.%d"
-	startTime := time.Now()
-	// do something
-	network.StartSegment(template, 60, 100)
-	// end time
-	elsp := time.Since(startTime)
-	
-	fmt.Printf("Scan used %ds.\n", elsp/1e9)
+	host, port := "localhost", "6500"
+	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
+
+	r := registry.Registration{
+		ServiceName: registry.ScanService,
+		ServiceURL:  serviceAddress,
+		RequiredServices: []registry.ServiceName{
+			registry.RedisService,
+			registry.LogService,
+		},
+		ServiceUpdateURL: serviceAddress + "/services",
+	}
+
+	ctx, err := service.Start(
+		context.Background(),
+		host,
+		port,
+		r,
+		network.RegisterHandlers,
+	)
+
+	if err != nil {
+		stlog.Fatalln(err)
+	}
+
+	<-ctx.Done()
+	fmt.Println("Shutting down redis service.")
+
 }
