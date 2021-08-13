@@ -104,4 +104,19 @@ func exists(addr network.Addr) bool {
 }
 
 // get batch of jwglxt
-// func batch()
+func batch(cursor uint64, match string, count int64) (res []string, retCursor uint64, err error) {
+	res, retCursor, err = rdb.ZScan(ctx, REDIS_KEY, cursor, match, count).Result()
+	if err != nil {
+		return []string{}, 0, err
+	}
+	return res, retCursor, err
+}
+
+func GetBatch(cursor uint64, match string, count int64) (map[string]string, uint64, error) {
+	ret := make(map[string]string)
+	res, retCursor, err := batch(cursor, match, count)
+	for i := 0; i < len(res); i += 2 {
+		ret[res[i]] = res[i+1]
+	}
+	return ret, retCursor, err
+}
