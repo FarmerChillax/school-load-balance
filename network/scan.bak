@@ -60,7 +60,6 @@ func (addr Address) Handler(start, end int, segRes chan SegmentResult) {
 
 	res.Ports = ports
 	segRes <- res
-	close(address)
 	close(results)
 }
 
@@ -87,6 +86,7 @@ func (addr Address) pushPort(startPort, endPort int, address chan Address) {
 		addr.Port = i
 		address <- addr
 	}
+	close(address)
 }
 
 // ...

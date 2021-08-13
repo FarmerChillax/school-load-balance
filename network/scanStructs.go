@@ -1,24 +1,24 @@
 package network
 
-import "time"
+// import "time"
 
-type Timeout time.Duration
+// type Timeout time.Duration
 
-type Segment struct {
-	Template           string
-	SegmentType        rune
-	StartPort, EndPort int
-}
+// type Segment struct {
+// 	Template           string
+// 	SegmentType        rune
+// 	StartPort, EndPort int
+// }
 
-type SegmentResult struct {
-	Host  string
-	Ports []int
-}
+// type SegmentResult struct {
+// 	Host  string
+// 	Ports []int
+// }
 
-type Address struct {
-	Host    string
-	Port    int
-	Status  bool
-	Timeout Timeout
-	ssl     bool
-}
+// type Address struct {
+// 	Host    string
+// 	Port    int
+// 	Status  bool
+// 	Timeout Timeout
+// 	ssl     bool
+// }
