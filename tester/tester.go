@@ -4,9 +4,8 @@ import (
 	"balance/discover"
 	"balance/registry"
 	"balance/utils"
-	"encoding/binary"
+	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -16,37 +15,14 @@ const (
 	TEST_BATCH   = 10
 	TEST_TIMEOUT = 2
 	TEST_SSL     = false
+	TEST_RATE    = 10
 )
 
-func tester() {
-	recordCount, err := getCount()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
+func Start() {
+	for {
+		testService()
+		time.Sleep(TEST_RATE * time.Second)
 	}
-	// testTarget := make(chan Addr, recordCount/2)
-	// results := make(chan Addr)
-	fmt.Println(recordCount)
-}
-
-func getCount() (int, error) {
-	redisURL, err := registry.GetProvide(registry.RedisService)
-	if err != nil {
-		return 0, err
-	}
-	resp, err := http.Get(redisURL + "/utils")
-	if err != nil {
-		return 0, err
-	}
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return 0, err
-	}
-	defer resp.Body.Close()
-	count := binary.BigEndian.Uint64(respBody)
-	fmt.Printf("%d %T\n", count, count)
-	// return
-	return 0, nil
 }
 
 // 打开网络io，测试地址
@@ -67,15 +43,21 @@ func testService() {
 		testAddrs <- addr
 	}
 	close(testAddrs)
-	time.Sleep(time.Second * 5)
-	fmt.Println("push value success.")
+
 	for i := 0; i < addrsCount; i++ {
 		addrStatus := <-result
 		if addrStatus.Status {
 			// 验证成功，设置成满分
-			fmt.Println(addrStatus, "is ok.")
+			err := max(addrStatus)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		} else {
-			fmt.Println(addrStatus, "not ok.")
+			// 验证失败，降分
+			err := decrease(addrStatus)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 	}
 
@@ -97,4 +79,57 @@ func worker(raw, results chan discover.Addr) {
 		}
 		results <- addr
 	}
+}
+
+func decrease(addr discover.Addr) error {
+	redisURL, err := registry.GetProvide(registry.RedisService)
+	if err != nil {
+		return err
+	}
+	buf, err := addr.MarshalBinary()
+	if err != nil {
+		return err
+	}
+	request, err := http.NewRequest(http.MethodDelete, redisURL+"/tester", bytes.NewBuffer(buf))
+	if err != nil {
+		return err
+	}
+	request.Header.Add("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("faild to decrease with status code: %v", resp.StatusCode)
+	}
+	return nil
+}
+
+func max(addr discover.Addr) error {
+	respStatusCode, err := sendRequest(addr, "/tester", http.MethodPut)
+	if err != nil {
+		return err
+	}
+	if respStatusCode != http.StatusOK {
+		return fmt.Errorf("faild to decrease with status code: %v", respStatusCode)
+	}
+	return nil
+}
+
+func sendRequest(addr discover.Addr, url, method string) (int, error) {
+	redisURL, err := registry.GetProvide(registry.RedisService)
+	if err != nil {
+		return 0, err
+	}
+	buf, err := addr.MarshalBinary()
+	if err != nil {
+		return 0, err
+	}
+	request, err := http.NewRequest(method, redisURL+url, bytes.NewBuffer(buf))
+	if err != nil {
+		return 0, err
+	}
+	request.Header.Add("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(request)
+	return resp.StatusCode, err
 }

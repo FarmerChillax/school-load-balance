@@ -13,7 +13,7 @@ import (
 type Addr struct {
 	Host     string `json:"Host"`
 	Port     int    `json:"Port"`
-	Status   bool
+	Status   bool   `json:"-"`
 	Protocol string `json:"Protocol"`
 	timeout  time.Duration
 	ssl      bool

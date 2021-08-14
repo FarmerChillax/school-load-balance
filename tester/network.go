@@ -6,7 +6,6 @@ import (
 	"balance/storage"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -33,10 +32,8 @@ func getAddrs() (addrs discover.Addrs, err error) {
 		return addrs, err
 	}
 	defer resp.Body.Close()
-	fmt.Println(resp.StatusCode)
 	dec := json.NewDecoder(resp.Body)
 	err = dec.Decode(&addrs)
-	fmt.Println(addrs)
 	if err != nil {
 		return addrs, err
 	}

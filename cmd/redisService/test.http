@@ -8,7 +8,7 @@ Content-Type: "application/json"
 [
     {
         "Host": "192.168.2.123",
-        "Port": 233,
+        "Port": 2331,
         "Protocol": "http"
     }
 ]
@@ -23,7 +23,7 @@ HEAD http://localhost:7000/redis
 # {"Host":"192.168.2.233","Port":233,"Protocol":"http"}
 
 ### get record count
-GET http://localhost:7000/utils 
+GET http://localhost:7000/tester 
 
 ### post batch to get db message
 POST http://localhost:7000/tester  HTTP/1.1
@@ -33,4 +33,25 @@ Content-Type: "application/json"
     "cursor": 0,
     "match": "",
     "count": 10
+}
+
+### decrease score
+DELETE http://localhost:7000/tester  HTTP/1.1
+Content-Type: "application/json"
+
+{
+    "Host": "192.168.2.1",
+    "Port": 80,
+    "Protocol": "http"
+}
+
+
+### update score to max
+PUT http://localhost:7000/tester HTTP/1.1
+Content-Type: "application/json"
+
+{
+    "Host": "192.168.2.1",
+    "Port": 80,
+    "Protocol": "http"
 }

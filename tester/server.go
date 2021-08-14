@@ -11,7 +11,7 @@ func RegisterHandlers() {
 func startHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		go testService()
+		go Start()
 		msg := "tester start!"
 		w.Write([]byte(msg))
 	default:

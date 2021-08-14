@@ -58,15 +58,18 @@ func add(addrs discover.Addrs) (err error) {
 
 // 降低目标地址分数
 func decrease(addr discover.Addr) (err error) {
-	address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
-	err = rdb.ZIncrBy(ctx, REDIS_KEY, -1, address).Err()
+	member, err := addr.MarshalBinary()
 	if err != nil {
 		return err
 	}
-	score := rdb.ZScore(ctx, REDIS_KEY, address)
+	err = rdb.ZIncrBy(ctx, REDIS_KEY, -1, string(member)).Err()
+	if err != nil {
+		return err
+	}
+	score := rdb.ZScore(ctx, REDIS_KEY, string(member))
 	if score.Val() <= 0.00 {
-		log.Printf("%v current score %v, remove.\n", address, score.Val())
-		err := rdb.ZRem(ctx, REDIS_KEY, address).Err()
+		log.Printf("%v current score %v, remove.\n", addr, score.Val())
+		err := rdb.ZRem(ctx, REDIS_KEY, member).Err()
 		if err != nil {
 			return err
 		}
@@ -76,10 +79,13 @@ func decrease(addr discover.Addr) (err error) {
 
 // set jwglxt to max score
 func max(addr discover.Addr) (err error) {
-	address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
+	member, err := addr.MarshalBinary()
+	if err != nil {
+		return err
+	}
 	err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
 		Score:  SCORE_MAX,
-		Member: address,
+		Member: member,
 	}).Err()
 	if err != nil {
 		return err

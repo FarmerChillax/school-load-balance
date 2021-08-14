@@ -24,7 +24,6 @@ func writeHandler(w http.ResponseWriter, r *http.Request) {
 		err := decoder.Decode(&addrs)
 		log.Printf("recive data: %v\n", len(addrs))
 		if err != nil {
-			log.Println(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -75,7 +74,34 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Add("Content-Type", "application/json")
 		w.Write(data)
-
+	// 减少分数
+	case http.MethodDelete:
+		var addr discover.Addr
+		dec := json.NewDecoder(r.Body)
+		err := dec.Decode(&addr)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		err = decrease(addr)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+	// 更新分数为最大值
+	case http.MethodPut:
+		var addr discover.Addr
+		dec := json.NewDecoder(r.Body)
+		err := dec.Decode(&addr)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		err = max(addr)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
