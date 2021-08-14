@@ -135,12 +135,4 @@ func GetBatch(cursor uint64, match string, count int64) (res discover.Addrs, err
 		}
 	}
 	return res, nil
-	// for i := 0; i < len(res); i += 2 {
-	// 	err := addr.UnmarshalBinary([]byte(res[i]))
-	// 	if err != nil {
-	// 		return discover.Addrs, retCursor,
-	// 	}
-	// 	fmt.Println()
-	// }
-	// return ret, retCursor, err
 }

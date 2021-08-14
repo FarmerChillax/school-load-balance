@@ -1,8 +1,6 @@
 package tester
 
 import (
-	"balance/storage"
-	"fmt"
 	"net/http"
 )
 
@@ -13,18 +11,9 @@ func RegisterHandlers() {
 func startHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		// start tester
-		batch := storage.Batch{
-			Cursor: 0,
-			Match:  "",
-			Count:  10,
-		}
-		err := getAddrs(batch)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-
+		go testService()
+		msg := "tester start!"
+		w.Write([]byte(msg))
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		return

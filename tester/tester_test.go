@@ -1,7 +1,6 @@
 package tester
 
 import (
-	"balance/storage"
 	"testing"
 )
 
@@ -9,10 +8,10 @@ import (
 
 func TestGetAddrs(t testing.T) {
 	t.Log("Start test...")
-	batch := storage.Batch{
-		Cursor: 0,
-		Match:  "",
-		Count:  10,
-	}
-	getAddrs(batch)
+	// batch := storage.Batch{
+	// 	Cursor: 0,
+	// 	Match:  "",
+	// 	Count:  10,
+	// }
+	// getAddrs(batch)
 }

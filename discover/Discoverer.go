@@ -2,8 +2,8 @@ package discover
 
 import (
 	"balance/registry"
+	"balance/utils"
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -11,10 +11,10 @@ import (
 )
 
 type Addr struct {
-	Host     string
-	Port     int
-	status   bool
-	Protocol string
+	Host     string `json:"Host"`
+	Port     int    `json:"Port"`
+	Status   bool
+	Protocol string `json:"Protocol"`
 	timeout  time.Duration
 	ssl      bool
 }
@@ -56,7 +56,7 @@ func commonDiscover(host string) {
 	// 接收
 	for i := 0; i < len(commonPorts); i++ {
 		workerRes := <-results
-		if workerRes.status {
+		if workerRes.Status {
 			addrs = append(addrs, workerRes)
 		}
 	}
@@ -93,7 +93,7 @@ func discoverer(protocol, host string, start, end int, timeout time.Duration, ss
 	// 处理结果
 	for i := start; i < end; i++ {
 		workerRes := <-results
-		if workerRes.status {
+		if workerRes.Status {
 			addrs = append(addrs, workerRes)
 		}
 	}
@@ -132,8 +132,8 @@ func worker(raw, results chan Addr) {
 	// HTTPClient := makeHTTPClient(addr.timeout, addr.ssl)
 	for addr := range raw {
 		url := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
-		addr.status = false
-		HTTPClient := makeHTTPClient(addr.timeout, addr.ssl)
+		addr.Status = false
+		HTTPClient := utils.NewHTTPClient(addr.timeout, addr.ssl)
 		fmt.Printf("Start scanning %s\n", url)
 		res, err := HTTPClient.Get(url)
 		if err != nil {
@@ -141,19 +141,8 @@ func worker(raw, results chan Addr) {
 			continue
 		}
 		if res.StatusCode == http.StatusOK {
-			addr.status = true
+			addr.Status = true
 		}
 		results <- addr
 	}
-}
-
-func makeHTTPClient(timeout time.Duration, ssl bool) (client http.Client) {
-	tr := http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: ssl},
-	}
-	client = http.Client{
-		Timeout:   timeout,
-		Transport: &tr,
-	}
-	return client
 }

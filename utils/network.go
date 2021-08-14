@@ -2,8 +2,11 @@ package utils
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
 )
 
 func RestJson(obj interface{}) ([]byte, error) {
@@ -25,4 +28,15 @@ func MakeRequest(obj interface{}) (*bytes.Buffer, error) {
 	}
 	return b, err
 
+}
+
+func NewHTTPClient(timeout time.Duration, ssl bool) (client http.Client) {
+	tr := http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: ssl},
+	}
+	client = http.Client{
+		Timeout:   timeout,
+		Transport: &tr,
+	}
+	return client
 }

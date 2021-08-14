@@ -16,11 +16,6 @@ type Resp struct {
 	Data       interface{} `json:"data"`
 }
 
-// type AddrMsg {
-// 	Host string
-// 	Port int
-// }
-
 func writeHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -51,21 +46,19 @@ type Batch struct {
 	Count  int64
 }
 
-type BatchResp struct {
-	Results interface{}
-	Cursor  uint64
-}
-
 // utils
-func utilsHandler(w http.ResponseWriter, r *http.Request) {
+func testHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	// 获取proxies数量
 	case http.MethodGet:
 		recordCount := fmt.Sprintf("%d", count())
 		w.Write([]byte(recordCount))
+	// 获取proxies详细内容
 	case http.MethodPost:
 		var b Batch
 		dec := json.NewDecoder(r.Body)
 		err := dec.Decode(&b)
+		fmt.Println(b)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -135,5 +128,5 @@ func RegisterHandlers() {
 	// http.HandleFunc("/address", writeHandler)
 	http.HandleFunc("/write", writeHandler)
 	http.HandleFunc("/redis", redisHandler)
-	http.HandleFunc("/utils", utilsHandler)
+	http.HandleFunc("/tester", testHandler)
 }
