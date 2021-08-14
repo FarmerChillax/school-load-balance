@@ -5,16 +5,21 @@ GET http://localhost:7000/ping HTTP/1.1
 POST http://localhost:7000/write HTTP/1.1
 Content-Type: "application/json"
 
-{
-    "Host": "192.168.2.123",
-    "Ports": [80, 443]
-}
-
+[
+    {
+        "Host": "192.168.2.123",
+        "Port": 233,
+        "Protocol": "http"
+    }
+]
 
 ### test address exits
 # http://192.168.2.237:80
 HEAD http://localhost:7000/redis
-    ?protocol=http&host=192.168.2.123&port=80 
+    ?protocol=http&host=192.168.2.123&port=233 
+
+
+# {"Host":"192.168.2.233","Port":233,"Protocol":"http"}
 
 ### get record count
 GET http://localhost:7000/utils 

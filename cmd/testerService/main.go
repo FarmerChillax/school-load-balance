@@ -1,24 +1,23 @@
 package main
 
 import (
-	"balance/discover"
 	"balance/registry"
 	"balance/service"
+	"balance/tester"
 	"context"
 	"fmt"
-	stlog "log"
+	"log"
 )
 
 func main() {
-	host, port := "localhost", "6500"
+	host, port := "localhost", "3500"
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
 
 	r := registry.Registration{
-		ServiceName: registry.ScanService,
+		ServiceName: registry.TesterService,
 		ServiceURL:  serviceAddress,
 		RequiredServices: []registry.ServiceName{
 			registry.RedisService,
-			registry.LogService,
 		},
 		ServiceUpdateURL: serviceAddress + "/services",
 	}
@@ -28,14 +27,17 @@ func main() {
 		host,
 		port,
 		r,
-		discover.RegisterHandlers,
+		tester.RegisterHandlers,
 	)
-
 	if err != nil {
-		stlog.Fatalln(err)
+		log.Fatalln(err)
 	}
 
 	<-ctx.Done()
-	fmt.Println("Shutting down scanner service.")
-
+	fmt.Println("Shutting down redis service.")
+	// tester.GetAddrs(storage.Batch{
+	// 	Cursor: 0,
+	// 	Match:  "",
+	// 	Count:  10,
+	// })
 }

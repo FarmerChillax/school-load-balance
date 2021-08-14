@@ -1,4 +1,4 @@
-package network
+package discover
 
 import (
 	"fmt"

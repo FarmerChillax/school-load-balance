@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"balance/network"
+	"balance/discover"
 	"context"
 	"fmt"
 	"log"
@@ -11,12 +11,13 @@ import (
 
 // setting
 const (
-	server    = "192.168.2.122"
-	port      = 6379
-	password  = "farmer233"
-	db        = 5
-	REDIS_KEY = "ipList"
-	SCORE_MAX = 50
+	server        = "192.168.2.122"
+	port          = 6379
+	password      = "farmer233"
+	db            = 5
+	REDIS_KEY     = "proxies"
+	SCORE_MAX     = 50
+	SCORE_DEFAULT = 10
 )
 
 var rdb = redis.NewClient(&redis.Options{
@@ -36,13 +37,17 @@ func pingDB() string {
 	return res
 }
 
-func add(addrs network.Addrs) (err error) {
+func add(addrs discover.Addrs) (err error) {
 	for _, addr := range addrs {
-		address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
+		buf, err := addr.MarshalBinary()
+		if err != nil {
+			return nil
+		}
 		err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
-			Score:  10,
-			Member: address,
+			Score:  SCORE_DEFAULT,
+			Member: buf,
 		}).Err()
+
 		if err != nil {
 			return err
 		}
@@ -52,7 +57,7 @@ func add(addrs network.Addrs) (err error) {
 }
 
 // 降低目标地址分数
-func decrease(addr network.Addr) (err error) {
+func decrease(addr discover.Addr) (err error) {
 	address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
 	err = rdb.ZIncrBy(ctx, REDIS_KEY, -1, address).Err()
 	if err != nil {
@@ -70,7 +75,7 @@ func decrease(addr network.Addr) (err error) {
 }
 
 // set jwglxt to max score
-func max(addr network.Addr) (err error) {
+func max(addr discover.Addr) (err error) {
 	address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
 	err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
 		Score:  SCORE_MAX,
@@ -94,16 +99,16 @@ func count() int64 {
 }
 
 // 检测地址是否存在
-func exists(addr network.Addr) bool {
-	address := fmt.Sprintf("%s://%s:%d", addr.Protocol, addr.Host, addr.Port)
-	err := rdb.ZScore(ctx, REDIS_KEY, address).Err()
-	if err == nil {
-		return true
+func exists(addr discover.Addr) bool {
+	buf, err := addr.MarshalBinary()
+	if err != nil {
+		return false
 	}
-	return false
+	err = rdb.ZScore(ctx, REDIS_KEY, string(buf)).Err()
+	return err == nil
 }
 
-// get batch of jwglxt
+// get batch of jwglxtS
 func batch(cursor uint64, match string, count int64) (res []string, retCursor uint64, err error) {
 	res, retCursor, err = rdb.ZScan(ctx, REDIS_KEY, cursor, match, count).Result()
 	if err != nil {
@@ -112,11 +117,30 @@ func batch(cursor uint64, match string, count int64) (res []string, retCursor ui
 	return res, retCursor, err
 }
 
-func GetBatch(cursor uint64, match string, count int64) (map[string]string, uint64, error) {
-	ret := make(map[string]string)
-	res, retCursor, err := batch(cursor, match, count)
-	for i := 0; i < len(res); i += 2 {
-		ret[res[i]] = res[i+1]
+// format batch result value
+func GetBatch(cursor uint64, match string, count int64) (res discover.Addrs, err error) {
+	var addr discover.Addr
+	var ret []string
+	for {
+		ret, cursor, err = batch(cursor, match, count)
+		if err != nil {
+			return res, err
+		}
+		for i := 0; i < len(ret); i += 2 {
+			addr.UnmarshalBinary([]byte(ret[i]))
+			res = append(res, addr)
+		}
+		if cursor <= 0 {
+			break
+		}
 	}
-	return ret, retCursor, err
+	return res, nil
+	// for i := 0; i < len(res); i += 2 {
+	// 	err := addr.UnmarshalBinary([]byte(res[i]))
+	// 	if err != nil {
+	// 		return discover.Addrs, retCursor,
+	// 	}
+	// 	fmt.Println()
+	// }
+	// return ret, retCursor, err
 }

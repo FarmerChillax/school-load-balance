@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"balance/network"
+	"balance/discover"
 	"balance/utils"
 	"encoding/json"
 	"fmt"
@@ -16,11 +16,16 @@ type Resp struct {
 	Data       interface{} `json:"data"`
 }
 
+// type AddrMsg {
+// 	Host string
+// 	Port int
+// }
+
 func writeHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		decoder := json.NewDecoder(r.Body)
-		var addrs network.Addrs
+		var addrs discover.Addrs
 		err := decoder.Decode(&addrs)
 		log.Printf("recive data: %v\n", len(addrs))
 		if err != nil {
@@ -41,13 +46,13 @@ func writeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Batch struct {
-	Cursor uint64 `json:"cursor"`
-	Match  string `json:"match"`
-	Count  int64  `json:"count"`
+	Cursor uint64
+	Match  string
+	Count  int64
 }
 
 type BatchResp struct {
-	Results map[string]string
+	Results interface{}
 	Cursor  uint64
 }
 
@@ -65,20 +70,12 @@ func utilsHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		res, cursor, err := GetBatch(b.Cursor, b.Match, b.Count)
+		res, err := GetBatch(b.Cursor, b.Match, b.Count)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		resp := BatchResp{
-			Results: res,
-			Cursor:  cursor,
-		}
-		data, err := utils.MakeResponse(Resp{
-			StatusCode: 200,
-			Msg:        "ok",
-			Data:       resp,
-		})
+		data, err := utils.RestJson(res)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -108,7 +105,7 @@ func redisHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		isExits := exists(network.Addr{
+		isExits := exists(discover.Addr{
 			Protocol: protocol,
 			Host:     host,
 			Port:     port,

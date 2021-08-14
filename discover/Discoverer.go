@@ -1,4 +1,4 @@
-package network
+package discover
 
 import (
 	"balance/registry"
@@ -20,6 +20,17 @@ type Addr struct {
 }
 
 type Addrs []Addr
+
+// // implement encoding.BinaryMarshaler
+// // MarshalBinary use msgpack
+func (s *Addr) MarshalBinary() ([]byte, error) {
+	return json.Marshal(s)
+}
+
+// // UnmarshalBinary use msgpack
+func (s *Addr) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, s)
+}
 
 func commonDiscover(host string) {
 	commonPorts := []int{80, 443, 344, 4000, 5000, 8080, 8000, 8888}
