@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-// 获取redis中的url
+// 获取redis中的 Addr
 func getAddrs() (addrs discover.Addrs, err error) {
 	batch := storage.Batch{
 		Cursor: 0,

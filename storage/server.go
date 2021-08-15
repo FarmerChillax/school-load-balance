@@ -57,7 +57,6 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 		var b Batch
 		dec := json.NewDecoder(r.Body)
 		err := dec.Decode(&b)
-		fmt.Println(b)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return

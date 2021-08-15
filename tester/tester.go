@@ -19,6 +19,7 @@ const (
 )
 
 func Start() {
+	log.Println("Tester start success, test rate:", TEST_RATE)
 	for {
 		testService()
 		time.Sleep(TEST_RATE * time.Second)
@@ -27,7 +28,6 @@ func Start() {
 
 // 打开网络io，测试地址
 func testService() {
-	fmt.Println("start tester.")
 	addrs, err := getAddrs()
 	if err != nil {
 		log.Fatalln(err)

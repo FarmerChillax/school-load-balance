@@ -32,7 +32,7 @@ func (s *Addr) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, s)
 }
 
-func commonDiscover(host string) {
+func commonPortDiscover(host string) {
 	commonPorts := []int{80, 443, 344, 4000, 5000, 8080, 8000, 8888}
 	addrs := Addrs{}
 	ports := make(chan Addr, 20)

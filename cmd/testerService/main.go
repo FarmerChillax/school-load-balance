@@ -1,18 +1,19 @@
 package main
 
 import (
+	"balance/log"
 	"balance/registry"
 	"balance/service"
 	"balance/tester"
 	"context"
 	"fmt"
-	"log"
+	stlog "log"
 )
 
 func main() {
 	host, port := "localhost", "3500"
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
-
+	// web debug
 	r := registry.Registration{
 		ServiceName: registry.TesterService,
 		ServiceURL:  serviceAddress,
@@ -30,14 +31,17 @@ func main() {
 		tester.RegisterHandlers,
 	)
 	if err != nil {
-		log.Fatalln(err)
+		stlog.Fatalln(err)
+	}
+	// 启动测试器
+	go tester.Start()
+
+	// 启动 log service
+	if logProvider, err := registry.GetProvide(registry.LogService); err == nil {
+		fmt.Printf("Logging service found at: %s\n", logProvider)
+		log.SetClientLogger(logProvider, r.ServiceName)
 	}
 
 	<-ctx.Done()
 	fmt.Println("Shutting down redis service.")
-	// tester.GetAddrs(storage.Batch{
-	// 	Cursor: 0,
-	// 	Match:  "",
-	// 	Count:  10,
-	// })
 }
