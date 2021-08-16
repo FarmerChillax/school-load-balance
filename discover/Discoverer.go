@@ -32,6 +32,7 @@ func (s *Addr) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, s)
 }
 
+// fast discover
 func commonPortDiscover(host string) {
 	commonPorts := []int{80, 443, 344, 4000, 5000, 8080, 8000, 8888}
 	addrs := Addrs{}
@@ -69,9 +70,10 @@ func commonPortDiscover(host string) {
 	}
 }
 
+// full config discover (main discover)
 func discoverer(protocol, host string, start, end int, timeout time.Duration, ssl bool) {
-	addrs := make(Addrs, end-start+10)
-	ports := make(chan Addr, 2000)
+	var addrs Addrs
+	ports := make(chan Addr, end-start)
 	results := make(chan Addr)
 	// 启动worker
 	for i := 0; i < cap(ports); i++ {
@@ -90,6 +92,7 @@ func discoverer(protocol, host string, start, end int, timeout time.Duration, ss
 		}
 		close(ports) // 关闭发送频道
 	}()
+
 	// 处理结果
 	for i := start; i < end; i++ {
 		workerRes := <-results
@@ -98,9 +101,11 @@ func discoverer(protocol, host string, start, end int, timeout time.Duration, ss
 		}
 	}
 	if len(addrs) == 0 {
+		fmt.Println("host not found.")
 		return
 	}
 	// 发送结果给redis
+	fmt.Println("sending results to redis...")
 	err := sendDiscover(addrs)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -108,6 +113,7 @@ func discoverer(protocol, host string, start, end int, timeout time.Duration, ss
 }
 
 func sendDiscover(addrs Addrs) error {
+	fmt.Println(addrs)
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
 	err := enc.Encode(addrs)
