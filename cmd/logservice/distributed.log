@@ -1,2 +1,6 @@
-[log] - 2021/08/13 02:25:19 [RedisService] - 192.168.2.123 [80 443]
+[log] - 2021/08/16 18:20:36 [RedisService] - recive data: 8009
+
+[log] - 2021/08/16 18:21:09 [RedisService] - recive data: 8012
+
+[log] - 2021/08/16 18:22:39 [RedisService] - http: Server closed
 

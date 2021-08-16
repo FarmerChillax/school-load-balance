@@ -4,6 +4,15 @@ GET http://localhost:6500/start HTTP/1.1
 
 ### Send post to star scan
 POST http://localhost:6500/start HTTP/1.1
-# header name: header value
+Content-Type: "application/json"
+
+{
+    "Protocol": "http",
+    "Host": "xiaotao233.top",
+    "Start": 1,
+    "End": 65535,
+    "Timeout": 5,
+    "SSL": false
+}
 
 # content

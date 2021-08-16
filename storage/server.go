@@ -22,7 +22,7 @@ func writeHandler(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		var addrs discover.Addrs
 		err := decoder.Decode(&addrs)
-		log.Printf("recive data: %v\n", len(addrs))
+		fmt.Printf("recive data: %v\n", len(addrs))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
