@@ -12,7 +12,7 @@ import (
 func main() {
 	fileLogPath := "./distributed.log"
 	log.Run(fileLogPath)
-	host, port := "localhost", "6661"
+	host, port := "localhost", "6500"
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
 
 	r := registry.Registration{

@@ -3,7 +3,14 @@
 
 ## Todo
 1. 服务监控(心跳)
-2. 服务监听从localhost改全网段
+2. 服务监听从localhost改全网段 √
+
+## Service Port
+- registry service -> 6000
+- log service -> 6500
+- redis service -> 7000
+- tester service -> 7500
+- discover service -> 8000
 
 ## scanner
 教务系统扫描器，用于发现内网网段中隐藏的地址

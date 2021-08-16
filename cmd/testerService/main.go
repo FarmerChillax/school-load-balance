@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	host, port := "localhost", "3500"
+	host, port := "localhost", "7500"
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
 	// web debug
 	r := registry.Registration{

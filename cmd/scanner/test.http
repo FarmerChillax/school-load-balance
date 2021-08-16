@@ -1,10 +1,15 @@
+@hostname = localhost
+@port = 8000
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
 ### send get to start common scan
-GET http://localhost:6500/start HTTP/1.1
+GET http://{{host}}/start HTTP/1.1
 
 
 ### Send post to star scan
-POST http://localhost:6500/start HTTP/1.1
-Content-Type: "application/json"
+POST http://{{host}}/start HTTP/1.1
+Content-Type: {{contentType}}
 
 {
     "Protocol": "http",
@@ -15,4 +20,5 @@ Content-Type: "application/json"
     "SSL": false
 }
 
-# content
+### fast discover
+HEAD http://{{host}}/start HTTP/1.1

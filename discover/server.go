@@ -23,8 +23,7 @@ func DiscovererHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		// 默认扫描
-		// go fastDiscover()
-		commonDiscover()
+		go commonDiscover()
 		w.Write([]byte("start success."))
 	case http.MethodPost:
 		// 扫描指定段

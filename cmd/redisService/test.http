@@ -1,8 +1,14 @@
+@hostname = localhost
+@port = 7000
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
+
 ### Ping redis
-GET http://localhost:7000/ping HTTP/1.1
+GET http://{{host}}/ping HTTP/1.1
 
 ### write open port to db
-POST http://localhost:7000/write HTTP/1.1
+POST http://{{host}}/write HTTP/1.1
 Content-Type: "application/json"
 
 [
@@ -15,7 +21,7 @@ Content-Type: "application/json"
 
 ### test address exits
 # http://192.168.2.237:80
-HEAD http://localhost:7000/redis
+HEAD http://{{host}}/redis
     ?protocol=http&host=192.168.2.123&port=4000
 
 
@@ -23,10 +29,10 @@ HEAD http://localhost:7000/redis
 # {"Host":"192.168.2.233","Port":233,"Protocol":"http"}
 
 ### get record count
-GET http://localhost:7000/tester 
+GET http://{{host}}/tester 
 
 ### post batch to get db message
-POST http://localhost:7000/tester  HTTP/1.1
+POST http://{{host}}/tester  HTTP/1.1
 Content-Type: "application/json"
 
 {
@@ -36,7 +42,7 @@ Content-Type: "application/json"
 }
 
 ### decrease score
-DELETE http://localhost:7000/tester  HTTP/1.1
+DELETE http://{{host}}/tester  HTTP/1.1
 Content-Type: "application/json"
 
 {
@@ -47,7 +53,7 @@ Content-Type: "application/json"
 
 
 ### update score to max
-PUT http://localhost:7000/tester HTTP/1.1
+PUT http://{{host}}/tester HTTP/1.1
 Content-Type: "application/json"
 
 {

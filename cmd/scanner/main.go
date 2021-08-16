@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	host, port := "localhost", "6500"
+	host, port := "localhost", "8000"
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
 
 	r := registry.Registration{

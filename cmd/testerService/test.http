@@ -1,2 +1,8 @@
+@hostname = localhost
+@port = 7500
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
+
 ### start tester
-GET http://localhost:3500/start HTTP/1.1
+GET http://{{host}}/start HTTP/1.1
