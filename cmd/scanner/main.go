@@ -21,6 +21,7 @@ func main() {
 			registry.LogService,
 		},
 		ServiceUpdateURL: serviceAddress + "/services",
+		HeartbeatURL:     serviceAddress + "/heartbeat",
 	}
 
 	ctx, err := service.Start(

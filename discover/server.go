@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+const (
+	Protocol     = "http"
+	HostTemplate = "172.16.%d.%d"
+)
+
 type discoverConfig struct {
 	Protocol, Host string
 	Start, End     int
@@ -17,6 +22,25 @@ type discoverConfig struct {
 
 func RegisterHandlers() {
 	http.HandleFunc("/start", DiscovererHandler)
+	http.HandleFunc("/randome", randHandler)
+}
+
+func randHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		go randDisvocer()
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+}
+
+func randDisvocer() {
+	randNumber := MakeRandSegment()
+	for i := 1; i <= 255; i++ {
+		host := fmt.Sprintf(HostTemplate, randNumber, i)
+		go commonPortDiscover(host)
+	}
 }
 
 func DiscovererHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,18 +73,16 @@ func DiscovererHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func fastDiscover() {
-	hostTemplate := "192.168.2.%d"
 	for i := 1; i <= 255; i++ {
-		host := fmt.Sprintf(hostTemplate, i)
+		host := fmt.Sprintf(HostTemplate, 1, i)
 		go commonPortDiscover(host)
 	}
 }
 
 func commonDiscover() {
-	hostTemplate := "192.168.%d.%d"
 	for cSegment := 1; cSegment <= 255; cSegment++ {
 		for dSegment := 1; dSegment <= 255; dSegment++ {
-			host := fmt.Sprintf(hostTemplate, cSegment, dSegment)
+			host := fmt.Sprintf(HostTemplate, cSegment, dSegment)
 			go commonPortDiscover(host)
 		}
 		time.Sleep(time.Second * 2)
@@ -82,24 +104,4 @@ func Discover(discoverConfig discoverConfig) error {
 		timeout, discoverConfig.SSL)
 
 	return nil
-}
-
-func checkPort(start, end int) error {
-	if start > end {
-		return fmt.Errorf("end must big than start")
-	}
-	if start <= 0 || end > 65535 {
-		return fmt.Errorf("scan port out of range")
-	}
-	return nil
-}
-
-func checkProtocol(protocol string) error {
-	if len(protocol) == 0 {
-		return nil
-	}
-	if protocol == "http" || protocol == "https" {
-		return nil
-	}
-	return fmt.Errorf("protocol error")
 }

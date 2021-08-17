@@ -8,6 +8,7 @@ type Registration struct {
 	RequiredServices []ServiceName
 	// 服务与注册中心沟通的URL
 	ServiceUpdateURL string
+	HeartbeatURL     string
 }
 
 type ServiceName string

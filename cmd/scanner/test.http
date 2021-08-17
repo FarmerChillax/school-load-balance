@@ -13,12 +13,16 @@ Content-Type: {{contentType}}
 
 {
     "Protocol": "http",
-    "Host": "xiaotao233.top",
+    "Host": "farmer233.top",
     "Start": 1,
-    "End": 65535,
+    "End": 8080,
     "Timeout": 5,
     "SSL": false
 }
 
 ### fast discover
 HEAD http://{{host}}/start HTTP/1.1
+
+
+### random host
+GET http://{{host}}/randome HTTP/1.1

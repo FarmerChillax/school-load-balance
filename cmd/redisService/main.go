@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	host, port := "localhost", "7000"
+	host, port := "localhost", "7001"
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
 
 	r := registry.Registration{
@@ -21,6 +21,7 @@ func main() {
 			registry.LogService,
 		},
 		ServiceUpdateURL: serviceAddress + "/services",
+		HeartbeatURL:     serviceAddress + "/heartbeat",
 	}
 
 	ctx, err := service.Start(

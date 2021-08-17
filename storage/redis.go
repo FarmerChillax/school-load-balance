@@ -14,7 +14,7 @@ const (
 	server        = "127.0.0.1"
 	port          = 6379
 	password      = ""
-	db            = 1
+	db            = 2
 	REDIS_KEY     = "proxies"
 	SCORE_MAX     = 50
 	SCORE_DEFAULT = 10
