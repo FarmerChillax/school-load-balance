@@ -4,10 +4,10 @@
     "registryAddr": "localhost",
     "registryPort": 7780,
     "redis": {
-        "server": "farmer2333.top",
+        "server": "localhost",
         "port": 6379,
-        "password": "farmer233",
-        "db": 2,
+        "password": "",
+        "db": 0,
         "key": "proxies"
     }
 }
