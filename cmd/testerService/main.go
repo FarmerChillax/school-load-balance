@@ -5,15 +5,16 @@ import (
 	"balance/registry"
 	"balance/service"
 	"balance/tester"
+	"balance/utils"
 	"context"
 	"fmt"
 	stlog "log"
 )
 
 func main() {
-	host, port := "localhost", "7500"
+	host, port := utils.Config.Host, fmt.Sprintf("%d", utils.Config.Port)
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
-	// web debug
+
 	r := registry.Registration{
 		ServiceName: registry.TesterService,
 		ServiceURL:  serviceAddress,

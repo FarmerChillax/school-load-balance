@@ -2,9 +2,11 @@ package storage
 
 import (
 	"balance/discover"
+	"balance/utils"
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -20,16 +22,30 @@ const (
 	SCORE_DEFAULT = 10
 )
 
-var rdb = redis.NewClient(&redis.Options{
-	Addr:     fmt.Sprintf("%s:%d", server, port),
-	Password: password,
-	DB:       db,
-})
+// var rdb = redis.NewClient(&redis.Options{
+// 	Addr:     fmt.Sprintf("%s:%d", server, port),
+// 	Password: password,
+// 	DB:       db,
+// })
+
+var rdb *redis.Client
 
 var ctx = context.Background()
 
 func init() {
-	fmt.Println(rdb.Ping(ctx))
+	redisConfig := utils.Config.Redis
+	rdb = redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%d", redisConfig.Server, redisConfig.Port),
+		Password: redisConfig.Password,
+		DB:       redisConfig.DB,
+	})
+
+	_, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		log.Panicf("redis server connect timeout, err: %v", err)
+		os.Exit(0)
+	}
+	fmt.Println("redis server connect success")
 }
 
 func pingDB() string {

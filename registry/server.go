@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"balance/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -11,8 +12,10 @@ import (
 	"time"
 )
 
-const ServerPort = ":6000"
-const ServicesURL = "http://localhost" + ServerPort + "/services"
+var ServerPort = fmt.Sprintf(":%d", utils.Config.RegistryPort)
+
+// const ServicesURL = "http://farmer233.top" + ServerPort + "/services"
+var ServicesURL = fmt.Sprintf("http://%s:%d/services", utils.Config.RegistryAddr, utils.Config.RegistryPort)
 
 type registry struct {
 	registrations []Registration

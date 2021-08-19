@@ -3,15 +3,20 @@ package tester
 import (
 	"balance/discover"
 	"balance/registry"
-	"balance/storage"
 	"bytes"
 	"encoding/json"
 	"net/http"
 )
 
+type Batch struct {
+	Cursor uint64
+	Match  string
+	Count  int64
+}
+
 // 获取redis中的 Addr
 func getAddrs() (addrs discover.Addrs, err error) {
-	batch := storage.Batch{
+	batch := Batch{
 		Cursor: 0,
 		Match:  "",
 		Count:  TEST_BATCH,

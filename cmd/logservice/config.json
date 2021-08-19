@@ -1,0 +1,7 @@
+{
+    "host": "localhost",
+    "port": 7785,
+    "registryAddr": "localhost",
+    "registryPort": 7780,
+    "fileLogPath": "./distributed.log"
+}

@@ -1,4 +1,13 @@
 {
     "host": "localhost",
-    "port": 7001
+    "port": 7790,
+    "registryAddr": "localhost",
+    "registryPort": 7780,
+    "redis": {
+        "server": "farmer2333.top",
+        "port": 6379,
+        "password": "farmer233",
+        "db": 2,
+        "key": "proxies"
+    }
 }

@@ -4,15 +4,17 @@ import (
 	"balance/log"
 	"balance/registry"
 	"balance/service"
+	"balance/utils"
 	"context"
 	"fmt"
 	stlog "log"
 )
 
 func main() {
-	fileLogPath := "./distributed.log"
+	conf := utils.Config
+	fileLogPath := conf.FileLogPath
 	log.Run(fileLogPath)
-	host, port := "localhost", "6500"
+	host, port := conf.Host, fmt.Sprintf("%d", conf.Port)
 	serviceAddress := fmt.Sprintf("http://%s:%s", host, port)
 
 	r := registry.Registration{

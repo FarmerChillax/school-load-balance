@@ -1,0 +1,6 @@
+{
+    "host": "localhost",
+    "port": 7800,
+    "registryAddr": "localhost",
+    "registryPort": 7780
+}

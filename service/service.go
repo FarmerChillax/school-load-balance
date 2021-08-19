@@ -27,7 +27,6 @@ func startService(ctx context.Context, ServiceName registry.ServiceName,
 	ctx, cancel := context.WithCancel(ctx)
 	var srv http.Server
 	srv.Addr = ":" + port
-	// srv.Addr = fmt.Sprintf("%s:%s", host, port)
 	address := fmt.Sprintf("http://%s:%s", host, port)
 
 	go func() {
