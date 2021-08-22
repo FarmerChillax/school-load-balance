@@ -109,7 +109,25 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 // redis controller
 func redisHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet:
+		// 获取所有代理信息
+		proxies, err := all()
+		if err != nil {
+			log.Fatalln(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		data, err := utils.RestJson(proxies)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.Header().Add("Content-Type", "application/json")
+		w.Write(data)
+
 	case http.MethodHead:
+		// 测试数据是否存在
 		err := r.ParseForm()
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -154,4 +172,10 @@ func RegisterHandlers() {
 	http.HandleFunc("/write", writeHandler)
 	http.HandleFunc("/redis", redisHandler)
 	http.HandleFunc("/tester", testHandler)
+	http.HandleFunc("/all", func(rw http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			all()
+		}
+	})
 }

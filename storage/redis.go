@@ -13,12 +13,8 @@ import (
 
 // setting
 const (
-	server        = "127.0.0.1"
-	port          = 6379
-	password      = ""
-	db            = 2
-	REDIS_KEY     = "proxies"
 	SCORE_MAX     = 50
+	SCORE_MIN     = 0
 	SCORE_DEFAULT = 10
 )
 
@@ -29,11 +25,12 @@ const (
 // })
 
 var rdb *redis.Client
+var redisConfig utils.Redis
 
 var ctx = context.Background()
 
 func init() {
-	redisConfig := utils.Config.Redis
+	redisConfig = utils.Config.Redis
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", redisConfig.Server, redisConfig.Port),
 		Password: redisConfig.Password,
@@ -59,7 +56,7 @@ func add(addrs discover.Addrs) (err error) {
 		if err != nil {
 			return nil
 		}
-		err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
+		err = rdb.ZAdd(ctx, redisConfig.Key, &redis.Z{
 			Score:  SCORE_DEFAULT,
 			Member: buf,
 		}).Err()
@@ -78,14 +75,14 @@ func decrease(addr discover.Addr) (err error) {
 	if err != nil {
 		return err
 	}
-	err = rdb.ZIncrBy(ctx, REDIS_KEY, -1, string(member)).Err()
+	err = rdb.ZIncrBy(ctx, redisConfig.Key, -1, string(member)).Err()
 	if err != nil {
 		return err
 	}
-	score := rdb.ZScore(ctx, REDIS_KEY, string(member))
+	score := rdb.ZScore(ctx, redisConfig.Key, string(member))
 	if score.Val() <= 0.00 {
 		log.Printf("%v current score %v, remove.\n", addr, score.Val())
-		err := rdb.ZRem(ctx, REDIS_KEY, member).Err()
+		err := rdb.ZRem(ctx, redisConfig.Key, member).Err()
 		if err != nil {
 			return err
 		}
@@ -99,7 +96,7 @@ func max(addr discover.Addr) (err error) {
 	if err != nil {
 		return err
 	}
-	err = rdb.ZAdd(ctx, REDIS_KEY, &redis.Z{
+	err = rdb.ZAdd(ctx, redisConfig.Key, &redis.Z{
 		Score:  SCORE_MAX,
 		Member: member,
 	}).Err()
@@ -113,7 +110,7 @@ func max(addr discover.Addr) (err error) {
 
 // get count of jwglxt
 func count() int64 {
-	count, err := rdb.ZCard(ctx, REDIS_KEY).Result()
+	count, err := rdb.ZCard(ctx, redisConfig.Key).Result()
 	if err != nil {
 		return -1
 	}
@@ -126,13 +123,13 @@ func exists(addr discover.Addr) bool {
 	if err != nil {
 		return false
 	}
-	err = rdb.ZScore(ctx, REDIS_KEY, string(buf)).Err()
+	err = rdb.ZScore(ctx, redisConfig.Key, string(buf)).Err()
 	return err == nil
 }
 
 // get batch of jwglxtS
 func batch(cursor uint64, match string, count int64) (res []string, retCursor uint64, err error) {
-	res, retCursor, err = rdb.ZScan(ctx, REDIS_KEY, cursor, match, count).Result()
+	res, retCursor, err = rdb.ZScan(ctx, redisConfig.Key, cursor, match, count).Result()
 	if err != nil {
 		return []string{}, 0, err
 	}
@@ -157,4 +154,17 @@ func GetBatch(cursor uint64, match string, count int64) (res discover.Addrs, err
 		}
 	}
 	return res, nil
+}
+
+// get all proxies
+func all() (proxies []string, err error) {
+	proxies, err = rdb.ZRangeByScore(ctx, redisConfig.Key, &redis.ZRangeBy{
+		Min: fmt.Sprintf("%d", SCORE_MIN),
+		Max: fmt.Sprintf("%d", SCORE_MAX),
+	}).Result()
+	if err != nil {
+		return proxies, err
+	}
+
+	return proxies, err
 }

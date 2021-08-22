@@ -7,12 +7,15 @@ import (
 	"strings"
 )
 
-type redis struct {
-	Server   string `json:"server"`
-	Port     int    `json:"port"`
-	Password string `json:"password"`
-	DB       int    `json:"db"`
-	Key      string `json:"key"`
+type Redis struct {
+	Server        string `json:"server"`
+	Port          int    `json:"port"`
+	Password      string `json:"password"`
+	DB            int    `json:"db"`
+	Key           string `json:"key"`
+	SCORE_MAX     int    `json:"SCORE_MAX"`
+	SCORE_MIN     int    `json:"SCORE_MIN"`
+	SCORE_DEFAULT int    `json:"SCORE_DEFAULT"`
 }
 
 type config struct {
@@ -22,7 +25,7 @@ type config struct {
 	RegistryAddr string `json:"registryAddr"`
 	RegistryPort int    `json:"registryPort"`
 	FileLogPath  string `json:"fileLogPath"`
-	Redis        redis  `json:"redis"`
+	Redis        Redis  `json:"redis"`
 }
 
 func (c *config) LoadConfig(path string) error {

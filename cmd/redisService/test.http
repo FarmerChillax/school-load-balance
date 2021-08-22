@@ -1,5 +1,5 @@
 @hostname = localhost
-@port = 7000
+@port = 7790
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 
@@ -61,3 +61,12 @@ Content-Type: "application/json"
     "Port": 80,
     "Protocol": "http"
 }
+
+
+
+### get all redis
+GET http://{{host}}/all HTTP/1.1
+
+
+### get all redis
+GET  http://{{host}}/redis
