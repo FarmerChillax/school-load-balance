@@ -14,10 +14,11 @@ type Registration struct {
 type ServiceName string
 
 const (
-	LogService    = ServiceName("LogService")
-	RedisService  = ServiceName("RedisService")
-	ScanService   = ServiceName("ScanService")
-	TesterService = ServiceName("TesterService")
+	LogService      = ServiceName("LogService")
+	RedisService    = ServiceName("RedisService")
+	ScanService     = ServiceName("ScanService")
+	TesterService   = ServiceName("TesterService")
+	ScheduleService = ServiceName("ScheduleService")
 )
 
 type patchEntry struct {

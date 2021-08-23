@@ -18,6 +18,13 @@ type Redis struct {
 	SCORE_DEFAULT int    `json:"SCORE_DEFAULT"`
 }
 
+type Consul struct {
+	Protocol string `json:"protocol"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Path     string `json:"path"`
+}
+
 type config struct {
 	Host         string `json:"host"`
 	Port         int    `json:"port"`
@@ -26,6 +33,7 @@ type config struct {
 	RegistryPort int    `json:"registryPort"`
 	FileLogPath  string `json:"fileLogPath"`
 	Redis        Redis  `json:"redis"`
+	Consul       Consul `json:"consul"`
 }
 
 func (c *config) LoadConfig(path string) error {

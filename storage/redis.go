@@ -4,6 +4,7 @@ import (
 	"balance/discover"
 	"balance/utils"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -13,9 +14,9 @@ import (
 
 // setting
 const (
-	SCORE_MAX     = 50
+	SCORE_MAX     = 10
 	SCORE_MIN     = 0
-	SCORE_DEFAULT = 10
+	SCORE_DEFAULT = 5
 )
 
 // var rdb = redis.NewClient(&redis.Options{
@@ -157,14 +158,39 @@ func GetBatch(cursor uint64, match string, count int64) (res discover.Addrs, err
 }
 
 // get all proxies
-func all() (proxies []string, err error) {
-	proxies, err = rdb.ZRangeByScore(ctx, redisConfig.Key, &redis.ZRangeBy{
-		Min: fmt.Sprintf("%d", SCORE_MIN),
-		Max: fmt.Sprintf("%d", SCORE_MAX),
-	}).Result()
+// func all() (proxies []string, err error) {
+// 	proxies, err = rdb.ZRangeByScore(ctx, redisConfig.Key, &redis.ZRangeBy{
+// 		Min: fmt.Sprintf("%d", SCORE_MIN),
+// 		Max: fmt.Sprintf("%d", SCORE_MAX),
+// 	}).Result()
+// 	if err != nil {
+// 		return proxies, err
+// 	}
+// 	return proxies, err
+// }
+func all() (proxies Records, err error) {
+
+	redisRecord, err := rdb.ZRangeWithScores(ctx, redisConfig.Key, SCORE_MIN, SCORE_MAX).Result()
 	if err != nil {
 		return proxies, err
 	}
 
+	for _, item := range redisRecord {
+		var addr discover.Addr
+		err := json.Unmarshal([]byte(item.Member.(string)), &addr)
+		if err != nil {
+			return proxies, err
+		}
+		record := Record{Score: int(item.Score), Member: addr}
+		proxies = append(proxies, record)
+	}
+	fmt.Println(proxies)
 	return proxies, err
 }
+
+type Record struct {
+	Score  int           `json:"Score"`
+	Member discover.Addr `json:"Member"`
+}
+
+type Records []Record

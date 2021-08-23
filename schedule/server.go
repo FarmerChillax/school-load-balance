@@ -1,45 +1,30 @@
 package schedule
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 )
 
-// Consul Config
-type Consul struct {
-	Protocol string          `json:"protocol"`
-	Host     string          `json:"host"`
-	Port     int             `json:"port"`
-	Path     string          `json:"path"`
-	Services []ConsulService `json:"services"`
-}
+// type Scheduls struct {
+// 	SchedulName string
+// }
 
-type ConsulService struct {
-	Name  string `json:"name"`
-	Key   string `json:"Key"`
-	Value string `json:"Value"`
-}
+type SchedulHandler struct{}
 
-func (c Consul) sendServices() error {
-	// protocol + host + port + path
-	consulAddres := fmt.Sprintf("%s://%s:%d%s", c.Protocol, c.Host, c.Port, c.Path)
-	for _, item := range c.Services {
-		// url + name
-		addres := fmt.Sprintf("%s/%s/%s", consulAddres, item.Name, item.Key)
-		buf := bytes.NewBuffer([]byte(item.Value))
-		req, err := http.NewRequest(http.MethodPut, addres, buf)
-		if err != nil {
-			return err
-		}
-		req.Header.Add("Content-Type", "text/plain")
-		res, err := http.DefaultClient.Do(req)
-		if err != nil {
-			return err
-		}
-		if res.StatusCode != http.StatusOK {
-			return fmt.Errorf("failed to registry consul. Registry service responded with code %v. URL: %v", res.StatusCode, addres)
-		}
+func (sh SchedulHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		// w.WriteHeader(http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
-	return nil
+	err := Consul.SendServices()
+	// fmt.Println(Consul.Services)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func RegisterHandlers() {
+	sh := SchedulHandler{}
+	http.Handle("/test", &sh)
 }

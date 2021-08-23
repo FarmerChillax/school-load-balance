@@ -1,0 +1,8 @@
+@hostname = localhost
+@port = 8848
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+
+
+### get record count
+GET http://{{host}}/test  HTTP/1.1
