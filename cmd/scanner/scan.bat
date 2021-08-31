@@ -1,0 +1,1 @@
+scanner.exe config.json

@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		stlog.Fatalln(err)
 	}
-
+	
 	<-ctx.Done()
 	fmt.Println("Shutting down scanner service.")
 

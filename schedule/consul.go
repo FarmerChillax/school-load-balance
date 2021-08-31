@@ -67,7 +67,7 @@ func (c ConsulConfig) SendServices() error {
 func setup(rs storage.Records) (newSerives []ConsulService) {
 	for _, record := range rs {
 		nc := NginxConfig{}
-		nc.New()
+		nc = nc.New()
 		nc.Weight = record.Score
 		addr := fmt.Sprintf("%s:%d", record.Member.Host, record.Member.Port)
 		consulservice := ConsulService{
@@ -80,13 +80,14 @@ func setup(rs storage.Records) (newSerives []ConsulService) {
 }
 
 // 构造结构体
-func (nc NginxConfig) New() {
+func (nc NginxConfig) New() NginxConfig {
 	nc.Weight = 1
 	nc.FailTimeout = 10
 	nc.MaxFails = 2
+	return nc
 }
 
-var Consul ConsulConfig
+var Consul *ConsulConfig
 
 func init() {
 	Consul.Protocol = utils.Config.Consul.Protocol

@@ -6,3 +6,6 @@ __pycache__
 *.exe
 
 *.json
+
+*.7z
+*.zip

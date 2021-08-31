@@ -146,9 +146,11 @@ func worker(raw, results chan Addr) {
 			results <- addr
 			continue
 		}
-		if res.StatusCode == http.StatusOK {
+		if res.Header.Get("Server") == "ZFSOFT.Inc" && res.StatusCode == http.StatusOK {
 			addr.Status = true
 		}
+		// if res.StatusCode == http.StatusOK {
+		// }
 		results <- addr
 	}
 }
