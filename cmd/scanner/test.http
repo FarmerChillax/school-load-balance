@@ -26,3 +26,11 @@ HEAD http://{{host}}/start HTTP/1.1
 
 ### random host
 GET http://{{host}}/randome HTTP/1.1
+
+### segment, segment 的内容将拼接在x -> 172.16.x.[1-255]
+POST http://{{host}}/segment HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+    "segment": 1 
+}

@@ -23,6 +23,7 @@ type discoverConfig struct {
 func RegisterHandlers() {
 	http.HandleFunc("/start", DiscovererHandler)
 	http.HandleFunc("/randome", randHandler)
+	http.HandleFunc("/segment", segmentHanlder)
 }
 
 func randHandler(w http.ResponseWriter, r *http.Request) {
@@ -104,4 +105,37 @@ func Discover(discoverConfig discoverConfig) error {
 		timeout, discoverConfig.SSL)
 
 	return nil
+}
+
+type segment struct {
+	Segment int `"json":segment`
+}
+
+func segmentHanlder(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		var segmentConf segment
+		dec := json.NewDecoder(r.Body)
+		err := dec.Decode(&segmentConf)
+		if segmentConf.Segment == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		go segmentDiscover(segmentConf)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+}
+
+// 指定网段
+func segmentDiscover(seg segment) {
+	for i := 1; i < 256; i++ {
+		host := fmt.Sprintf(HostTemplate, seg.Segment, i)
+		go commonPortDiscover(host)
+	}
 }
