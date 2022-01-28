@@ -1,4 +1,4 @@
-# Teaching-school-load-balancing
+# School-load-balancing
 该项目用于代理学校教务系统，通过检测教务系统各节点的健康度实现
 
 ## Todo
